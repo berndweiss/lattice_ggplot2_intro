@@ -1,0 +1,545 @@
+#+TITLE:     Beyond R's basic graphics system: lattice and ggplot2
+#+AUTHOR:    Bernd Weiss\\Research Institute for Sociology\\University of Cologne\\Germany\\
+#+EMAIL:     bernd.weiss@uni-koeln.de
+#+DATE:      21/01/2011 \vfill \byncsa
+
+#+DESCRIPTION:
+#+KEYWORDS:
+#+LANGUAGE:  en
+#+OPTIONS:   H:3 num:t toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
+#+OPTIONS:   TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
+#+INFOJS_OPT: view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
+#+LINK_UP:
+#+LINK_HOME:
+#+XSLT:
+
+#+BEAMER_FRAME_LEVEL: 2
+#+BABEL: :results output :exports both :comments yes :session
+
+
+#+startup: beamer
+#+LaTeX_CLASS: beamer
+#+LaTeX_CLASS_OPTIONS: [bigger]
+#+latex_header: %%\mode<beamer>{\usetheme{Madrid}}
+#+latex_header: \usepackage{lucidabr}
+#+latex_header: \usepackage{marvosym}
+#+latex_header: \AtBeginSection[]{\begin{frame}<beamer>\frametitle{Topic}\tableofcontents[currentsection]\end{frame}}
+#+latex_header: \usepackage{cclicenses}
+#+latex_header: \hypersetup{colorlinks=true, urlcolor=cyan, linkcolor=black}
+#+begin_LaTeX
+
+\newcommand{\infobox}[1]{
+  \vfill\vfill\hrule
+  \begin{columns}[t]
+    \begin{column}{0.02\textwidth}
+      \Info
+    \end{column}
+    \begin{column}[T]{0.97\textwidth}
+      \tiny{#1}
+    \end{column}
+\end{columns}}
+
+\definecolor{dkgreen}{rgb}{0,0.5,0}
+\definecolor{dkred}{rgb}{0.5,0,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\lstset{basicstyle=\ttfamily\bfseries\footnotesize,
+morekeywords={virtualinvoke},
+%%keywordstyle=\color{blue},
+%%ndkeywordstyle=\color{red},
+commentstyle=\color{dkred},
+%%stringstyle=\color{dkgreen},
+numbers=left,
+numberstyle=\ttfamily\tiny\color{gray},
+stepnumber=1,
+numbersep=10pt,
+backgroundcolor=\color{white},
+tabsize=4,
+showspaces=false,
+showstringspaces=false,
+xleftmargin=.23in
+}
+#+end_LaTeX
+
+
+#+begin_latex
+\begin{frame}\frametitle{Acknowledgment, license and downloads}
+\begin{itemize}
+\item This work was supported by a fellowship within the Postdoc-Programme of the German Academic
+  Exchange Service (DAAD)(Grant D/10/43517).
+\item My presentation was created using Emacs' \href{http://orgmode.org/}{\emph{org-mode}} and
+\href{http://orgmode.org/worg/org-contrib/babel/}{\emph{Babel: active code in
+Org-mode}}. \emph{Babel} is developed and maintained by Eric Schulte and Dan Davison who were extremely
+helpful in answering my questions or fixing bugs.
+\item Licensed under a Creative Commons
+\href{http://creativecommons.org/licenses/by-nc-sa/3.0/de/deed.en}{Attribution-NonCommercial-ShareAlike
+3.0 Germany} license.
+\item Slides, dataset and R code can be downloaded from my github page:
+\href{xxx}{xxx} (see
+"Downloads" button on the right-hand side).
+\end{itemize}
+\end{frame}
+#+end_latex
+
+#+lattice and ggplot2 in babel
+#+http://www.mail-archive.com/emacs-orgmode@gnu.org/msg25944.html
+#+http://www.mail-archive.com/emacs-orgmode@gnu.org/msg35559.html
+
+
+* Some preliminary work
+
+** Loading packages and creating the data
+   :PROPERTIES:
+   :BEAMER_env: frame
+   :BEAMER_envargs: [shrink = 10]
+   :END:
+#+BEGIN_SRC R :tangle ../src/01_generate_data.R
+library(lattice)
+library(ggplot2)
+
+## Regression model: y = 1.2 + 0.3*x1 + 0.4*x2 + 0.9*x1*x2 + e
+set.seed(1)
+x1 <- round(runif(1000, min = 1, max = 10), digits = 0)
+x2 <- round(runif(1000, min = 1, max = 4), digits = 0)
+
+y = 1.2 + 0.3*x1 + 0.4*x2 + 0.9*x1*x2 + rnorm(1000, 0, 1)
+df <- data.frame(y = y, x1 = x1, x2 = x2, 
+                 x2f = factor(x2, labels = c("a", "b", "c", "d")))
+
+lm(y ~ x1 + x2 + x1*x2, data = df)
+#+END_SRC
+
+#+results:
+:  
+: Call:
+: lm(formula = y ~ x1 + x2 + x1 * x2, data = df)
+: 
+: Coefficients:
+: (Intercept)           x1           x2        x1:x2  
+:      1.3046       0.2554       0.3738       0.9140
+
+
+
+* The lattice package
+
+** A basic overview about the lattice package
+   :PROPERTIES:
+   :BEAMER_env: frame
+   :BEAMER_envargs: [shrink = 10]
+   :END:
+- Needs to be loaded via =library(lattice)=
+- Most lattice function use the formula interface (e.g., =y ~ x=).
+- One strength on =lattice= is the ability to create multipanel plots (trellis graphs). Use the
+  "conditional on" symbol =|= to create a multipanel plot (e.g., =y ~ x | g=).
+- Sometimes, original data need to be prepared (e.g., for barcharts)
+- Web resources:
+  - [[http://lmdvr.r-forge.r-project.org/figures/figures.html][Website for "Lattice: Multivariate Data Visualization with R - Figures and Code" by Deepayan Sarkar]]
+  - [[http://www.cet.sunderland.ac.uk/~cs0her/Statistics/UsingLatticeGraphicsInR.htm][Using Lattice Graphics in R]]
+  - [[http://www.isid.ac.in/~deepayan/R-tutorials/labs/04_lattice_lab.pdf][An Introduction to R by Deepayan Sarkar]]
+
+
+
+** Histogram
+#+attr_latex: width=0.6\textwidth
+
+#+BEGIN_SRC R :results output graphics :tangle ../src/02_lattice_examples.R :file ../graphs/lattice_hist.pdf
+histogram(~ y, data = df, xlab = "My y variable", 
+          col = "gray")
+#+END_SRC
+
+#+results:
+[[file:../graphs/lattice_hist.pdf]]
+
+
+
+** Histogram conditional on =x2f=
+#+attr_latex: width=0.6\textwidth
+
+#+BEGIN_SRC R :results output graphics :tangle ../src/02_lattice_examples.R :file ../graphs/lattice_hist_g.pdf
+histogram(~ y | x2f, data = df, 
+          xlab = "My y variable", col = "gray")
+#+END_SRC
+
+#+results:
+[[file:../graphs/lattice_hist_g.pdf]]
+
+
+
+** Histogram with superimposed density plot
+   :PROPERTIES:
+   :BEAMER_env: frame
+   :BEAMER_envargs: [shrink = 10]
+   :END:
+#+attr_latex: width=0.6\textwidth
+#+BEGIN_SRC R :results output graphics :tangle ../src/02_lattice_examples.R :file ../graphs/lattice_hist_dens.pdf
+histogram(~ y, data = df, xlab = "My y variable", 
+          col = "gray", type = "density",
+          panel = function(...){
+              panel.histogram(...);
+              panel.densityplot(..., col.line = "black")
+          }
+)
+#+END_SRC
+
+#+results:
+[[file:../graphs/lattice_hist_dens.pdf]]
+
+
+
+** Histogram with superimposed density plot and conditional on =x2f=  :B_frame:
+   :PROPERTIES:
+   :BEAMER_env: frame
+   :BEAMER_envargs: [shrink = 10]
+   :END:
+#+attr_latex: width=0.6\textwidth
+
+#+BEGIN_SRC R :results output graphics :tangle ../src/02_lattice_examples.R :file ../graphs/lattice_hist_dens_g.pdf
+histogram(~ y | x2f, data = df, xlab = "My y variable", 
+          col = "gray", type = "density",
+          panel = function(...){
+              panel.histogram(...);
+              panel.densityplot(..., 
+                                col.line = "black")
+          }
+)
+#+END_SRC
+
+#+results:
+[[file:../graphs/lattice_hist_dens_g.pdf]]
+
+
+
+** Scatter plot
+#+attr_latex: width=0.6\textwidth
+#+BEGIN_SRC R :results output graphics :tangle ../src/02_lattice_examples.R :file ../graphs/lattice_scatter.pdf
+xyplot(y ~ x1, data = df, 
+       xlab = "My x1 variable", ylab = "My y variable")
+#+END_SRC
+
+#+results:
+[[file:../graphs/lattice_scatter.pdf]]
+
+
+
+** Multipanel scatter plot by =x2f=
+#+attr_latex: width=0.6\textwidth
+#+BEGIN_SRC R :results output graphics :tangle ../src/02_lattice_examples.R :file ../graphs/lattice_scatter_cond.pdf
+xyplot(y ~ x1 | x2f, data = df, 
+       xlab = "My x1 variable", ylab = "My y variable")
+#+END_SRC
+
+#+results:
+[[file:../graphs/lattice_scatter_cond.pdf]]
+
+
+
+** Scatter plot by grouping variable x2
+   :PROPERTIES:
+   :BEAMER_env: frame
+   :BEAMER_envargs: [shrink = 10]
+   :END:
+#+attr_latex: width=0.6\textwidth
+#+BEGIN_SRC R :results output graphics :tangle ../src/02_lattice_examples.R :file ../graphs/lattice_scatter_g.pdf
+xyplot(y ~ x1, groups = x2f, data = df,
+       key = simpleKey(text = levels(df$x2f), columns = 4))
+#+END_SRC
+
+#+results:
+[[file:../graphs/lattice_scatter_g.pdf]]
+
+
+
+** Scatter plot and linear regression line by grouping variable =x2=
+   :PROPERTIES:
+   :BEAMER_env: frame
+   :BEAMER_envargs: [shrink = 10]
+   :END:
+#+attr_latex: width=0.6\textwidth
+#+BEGIN_SRC R :results output graphics :tangle ../src/02_lattice_examples.R :file ../graphs/lattice_scatter_reg.pdf
+xyplot(y ~ x1 | x2, data = df, 
+       panel = function(y, x1, ...){
+           panel.xyplot(x1, y);
+           panel.lmline(x1, y)
+       })
+#+END_SRC
+
+#+results:
+[[file:../graphs/lattice_scatter_reg.pdf]]
+
+
+
+** Scatter plot and LOESS line by grouping variable =x2=
+   :PROPERTIES:
+   :BEAMER_env: frame
+   :BEAMER_envargs: [shrink = 10]
+   :END:
+#+attr_latex: width=0.6\textwidth
+#+BEGIN_SRC R :results output graphics :tangle ../src/02_lattice_examples.R :file ../graphs/lattice_scatter_loess.pdf
+xyplot(y ~ x1 | x2, 
+       data = data.frame(df[, -2], x1 = df$x1^2), 
+       panel = function(y, x1, ...){
+           panel.xyplot(x1, y);
+           panel.loess(x1, y)
+       })
+#+END_SRC
+
+#+results:
+[[file:../graphs/lattice_scatter_loess.pdf]]
+
+
+
+** Bar chart (absolute frequencies)
+   :PROPERTIES:
+   :BEAMER_env: frame
+   :BEAMER_envargs: [shrink = 10]
+   :END:
+#+attr_latex: width=0.6\textwidth
+#+BEGIN_SRC R :results output graphics :tangle ../src/02_lattice_examples.R :file ../graphs/lattice_barchart_n.pdf
+barchart(Freq ~ Var1, data = data.frame(table(df$x2f)), 
+         xlab = "My x1 variable as a factor", ylab = "N",
+         col = "gray")
+#+END_SRC
+
+#+results:
+[[file:../graphs/lattice_barchart_n.pdf]]
+
+
+
+** Bar chart (percentages)
+   :PROPERTIES:
+   :BEAMER_env: frame
+   :BEAMER_envargs: [shrink = 10]
+   :END:
+#+attr_latex: width=0.6\textwidth
+#+BEGIN_SRC R :results output graphics :tangle ../src/02_lattice_examples.R :file ../graphs/lattice_barchart_p.pdf
+barchart(Freq ~ Var1, 
+         data = data.frame(100 * prop.table(table(df$x2f))), 
+         xlab = "My x1 variable as a factor", ylab = "%", 
+         col = "gray")
+#+END_SRC
+
+#+results:
+[[file:../graphs/lattice_barchart_p.pdf]]
+
+
+
+** Bar chart with superimposed line plot
+   :PROPERTIES:
+   :BEAMER_env: frame
+   :BEAMER_envargs: [shrink = 10]
+   :END:
+#+attr_latex: width=0.55\textwidth
+#+BEGIN_SRC R :results output graphics :tangle ../src/02_lattice_examples.R :file ../graphs/lattice_barchart_lines.pdf
+barchart(Freq ~ Var1, data = data.frame(table(df$x2f)), 
+         xlab = "My x1 variable as a factor", ylab = "N",
+         col = "gray",
+         panel = function(...){
+             panel.barchart(...);
+             panel.xyplot(..., type = "b", col.symbol = "red", 
+                          col.line = "red");
+         })
+#+END_SRC
+
+#+results:
+[[file:../graphs/lattice_barchart_lines.pdf]]
+
+
+* The ggplot2 package
+
+** A basic overview about the ggplot2 package
+   :PROPERTIES:
+   :BEAMER_env: frame
+   :BEAMER_envargs: [shrink = 10]
+   :END:
+- Needs to be loaded via =library(ggplot2)=
+- Is based on The Grammar of Graphics by Leland Wilkinson
+- Sometimes difficult to "tweak" plots which do not follow the GoG (and Hadley Wickham's
+  implementation of the GoG)
+- Often, original data need to be modified (e.g., aggregated for barcharts)
+- Web resources:
+  - [[http://had.co.nz/ggplot2/][Hadley Wickham's website for ggplot2]] (this website is simply awesome; he also has
+    written a ggplot2 related book)
+  - [[https://github.com/hadley/ggplot2/wiki][Wiki for ggplot2: Elegant graphics for data analysis]] (ultimate resource when it comes to fine tuning)
+  - [[http://learnr.wordpress.com/][The blog Learning R offers a lot of examples of how ggplot2 works]]
+  - Visualizing Data with R and ggplot2 (video w/ slides) (website: www.drewconway.com/zia/?p=1637)
+
+
+** Histogram
+#+attr_latex: width=0.6\textwidth
+
+#+BEGIN_SRC R :results output graphics :tangle ../src/03_ggplot2_examples.R :file ../graphs/ggplot2_hist.pdf
+ggplot(aes(x = y), data = df) + geom_histogram() + 
+    xlab("My y variable") + ylab("N")
+#+END_SRC
+
+#+results:
+[[file:../graphs/ggplot2_hist.pdf]]
+
+
+
+** Histogram conditional on =x2f=
+#+attr_latex: width=0.6\textwidth
+
+#+BEGIN_SRC R :results output graphics :tangle ../src/03_ggplot2_examples.R :file ../graphs/ggplot2_hist_g.pdf
+ggplot(aes(x = y), data = df) + geom_histogram() + 
+    xlab("My y variable") + ylab("N") + facet_wrap(~x2f)
+#+END_SRC
+
+#+results:
+[[file:../graphs/ggplot2_hist_g.pdf]]
+
+
+
+
+** Histogram with superimposed density plot and conditional on =x2f=  :B_frame:
+   :PROPERTIES:
+   :BEAMER_env: frame
+   :BEAMER_envargs: [shrink = 10]
+   :END:
+#+attr_latex: width=0.6\textwidth
+#+BEGIN_SRC R :results output graphics :tangle ../src/03_ggplot2_examples.R :file ../graphs/ggplot2_hist_dens.pdf
+ggplot(aes(x = y), data = df) + 
+    geom_histogram(aes(y = ..density..)) + 
+    geom_density(colour = "grey", size = 1.2) + 
+    xlab("My y variable") + ylab("N") + 
+    facet_wrap(~x2f)
+#+END_SRC
+
+#+results:
+[[file:../graphs/ggplot2_hist_dens.pdf]]
+
+
+
+** Scatter plot
+#+attr_latex: width=0.6\textwidth
+#+BEGIN_SRC R :results output graphics :tangle ../src/03_ggplot2_examples.R :file ../graphs/ggplot2_scatter.pdf
+ggplot(aes(x = x1, y = y), data = df) + geom_point() + 
+    xlab("My x1 variable") + ylab("My y variable")
+#+END_SRC
+
+#+results:
+[[file:../graphs/ggplot2_scatter.pdf]]
+
+
+
+** Multipanel scatter plot by =x2f=
+#+attr_latex: width=0.6\textwidth
+#+BEGIN_SRC R :results output graphics :tangle ../src/03_ggplot2_examples.R :file ../graphs/ggplot2_scatter_cond.pdf
+ggplot(aes(x = x1, y = y), data = df) + geom_point() + 
+    xlab("My x1 variable") + ylab("My y variable") +
+    facet_wrap(~ x2f)
+#+END_SRC
+
+#+results:
+[[file:../graphs/ggplot2_scatter_cond.pdf]]
+
+
+
+** Scatter plot by grouping variable x2
+   :PROPERTIES:
+   :BEAMER_env: frame
+   :BEAMER_envargs: [shrink = 10]
+   :END:
+#+attr_latex: width=0.6\textwidth
+#+BEGIN_SRC R :results output graphics :tangle ../src/03_ggplot2_examples.R :file ../graphs/ggplot2_scatter_g.pdf
+ggplot(aes(x = x1, y = y, colour = x2f), data = df) + 
+    geom_point() + xlab("My x1 variable") + 
+    ylab("My y variable")
+#+END_SRC
+
+#+results:
+[[file:../graphs/ggplot2_scatter_g.pdf]]
+
+
+
+** Scatter plot and linear regression line by =x2=
+   :PROPERTIES:
+   :BEAMER_env: frame
+   :BEAMER_envargs: [shrink = 15]
+   :END:
+#+attr_latex: width=0.6\textwidth
+#+BEGIN_SRC R :results output graphics :tangle ../src/03_ggplot2_examples.R :file ../graphs/ggplot2_scatter_reg.pdf
+ggplot(aes(x = x1, y = y, colour = x2f), data = df) + 
+    geom_point() + xlab("My x1 variable") + 
+    ylab("My y variable") + facet_wrap(~x2f) +
+    geom_smooth(method = "lm")
+#+END_SRC
+
+#+results:
+[[file:../graphs/ggplot2_scatter_reg.pdf]]
+
+
+
+** Scatter plot and LOESS line by =x2=
+   :PROPERTIES:
+   :BEAMER_env: frame
+   :BEAMER_envargs: [shrink = 10]
+   :END:
+#+attr_latex: width=0.6\textwidth
+#+BEGIN_SRC R :results output graphics :tangle ../src/03_ggplot2_examples.R :file ../graphs/ggplot2_scatter_loess.pdf
+ggplot(aes(x = x1, y = y, colour = x2f), 
+       data = data.frame(df[, -2], x1 = df$x1^2)) + 
+    geom_point() + xlab("My x1 variable") + 
+    ylab("My y variable") + facet_wrap(~x2f) +
+    geom_smooth(method = "loess")
+#+END_SRC
+
+#+results:
+[[file:../graphs/ggplot2_scatter_loess.pdf]]
+
+
+
+** Bar chart (absolute frequencies)
+   :PROPERTIES:
+   :BEAMER_env: frame
+   :BEAMER_envargs: [shrink = 10]
+   :END:
+#+attr_latex: width=0.6\textwidth
+#+BEGIN_SRC R :results output graphics :tangle ../src/03_ggplot2_examples.R :file ../graphs/ggplot2_barchart_n.pdf
+ggplot(aes(x = x2f), data = df) + geom_bar(fill = "red") 
+#+END_SRC
+
+#+results:
+[[file:../graphs/ggplot2_barchart_n.pdf]]
+
+
+
+** Bar chart (percentages)
+   :PROPERTIES:
+   :BEAMER_env: frame
+   :BEAMER_envargs: [shrink = 10]
+   :END:
+#+attr_latex: width=0.6\textwidth
+#+BEGIN_SRC R :results output graphics :tangle ../src/03_ggplot2_examples.R :file ../graphs/ggplot2_barchart_p.pdf
+tmp <- data.frame(prop.table(table(df$x2f)))
+ggplot(aes(x = Var1, y = Freq), data = tmp) + 
+    geom_bar(fill = "red") 
+#+END_SRC
+
+#+results:
+[[file:../graphs/ggplot2_barchart_p.pdf]]
+
+
+
+** Box plot, jittered scatterplot, LOESS line (slightly useless\ldots)
+ :PROPERTIES:
+   :BEAMER_env: frame
+   :BEAMER_envargs: [shrink = 10]
+   :END:
+#+attr_latex: width=0.6\textwidth
+#+BEGIN_SRC R :results output graphics :tangle ../src/03_ggplot2_examples.R :file ../graphs/ggplot2_boxplot.pdf
+ggplot(aes(x = x2f, y = y), data = df) +
+    geom_jitter() + geom_boxplot(alpha = 0.8) + 
+    stat_smooth(aes(x = as.numeric(x2f, y = y)), 
+                data = df, method = "loess", 
+                level = 0.90) + 
+    geom_hline(yintercept = mean(df$y), 
+               col = "green", size = 1.2)
+#+END_SRC
+
+#+results:
+[[file:../graphs/ggplot2_boxplot.pdf]]
+
+
+  

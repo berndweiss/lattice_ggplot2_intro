@@ -1,0 +1,19 @@
+* Contents
+- docs :: Some lattice and ggplot2 related documents. These documents cannot be found on my github
+          repo but the corresponding links are presented inside the slides. 
+- graphics :: R graphics
+- /report :: Slides (PDF-, Org- and TeX-files)
+- /src :: R code
+
+* Understanding and running R code
+The R source code can be found in =/src=. For each slide, R code is separated by a marker which
+starts with "## [[file:e:" and can help you to find the corresponding slide. This may look ugly to
+you but (a) the symbols indicate that these lines are commented out and harmless and (even more
+important) (b) are an essential part of my work flow and cannot be removed.  
+
+* License
+These materials are licensed under a [[http://creativecommons.org/licenses/by-nc-sa/3.0/de/deed.en][CC Attribution-NonCommercial-ShareAlike 3.0 Germany (CC
+BY-NC-SA 3.0)]].  
+
+* Contact
+If you have any question or comments, feel free to contact me via [[http://berndweiss.net]].
