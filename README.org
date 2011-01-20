@@ -7,6 +7,10 @@
 - /report :: Slides (PDF-, Org- and TeX-files)
 - /src :: R code
 
+** Download all materials
+You can download this repository with git (see "Git Read-only" link above). If you have no idea
+about git, then you might better use the "Downloads" button on the right-hand side).
+
 ** Understanding and running R code
 The R source code can be found in =/src=. For each slide, R code is separated by a marker which
 starts with "## [[file:e:" and can help you to find the corresponding slide. This may look ugly to

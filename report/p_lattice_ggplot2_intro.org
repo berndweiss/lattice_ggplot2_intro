@@ -70,13 +70,12 @@ xleftmargin=.23in
   Exchange Service (DAAD)(Grant D/10/43517).
 \item My presentation was created using Emacs' \href{http://orgmode.org/}{\emph{org-mode}} and
 \href{http://orgmode.org/worg/org-contrib/babel/}{\emph{Babel: active code in
-Org-mode}}. \emph{Babel} is developed and maintained by Eric Schulte and Dan Davison who were extremely
-helpful in answering my questions or fixing bugs.
+Org-mode}}. 
 \item Licensed under a Creative Commons
 \href{http://creativecommons.org/licenses/by-nc-sa/3.0/de/deed.en}{Attribution-NonCommercial-ShareAlike
 3.0 Germany} license.
 \item Slides, dataset and R code can be downloaded from my github page:
-\href{xxx}{xxx} (see
+\href{https://github.com/berndweiss/lattice_ggplot2_intro}{https://github.com/berndweiss/lattice_ggplot2_intro} (see
 "Downloads" button on the right-hand side).
 \end{itemize}
 \end{frame}
