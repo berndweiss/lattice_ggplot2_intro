@@ -1,4 +1,4 @@
-% Created 2011-01-20 Do 10:12
+% Created 2011-01-20 Do 15:18
 \documentclass[bigger]{beamer}
 \usepackage[latin1]{inputenc}
 \usepackage[T1]{fontenc}
@@ -96,7 +96,7 @@ Org-mode}}.
 \section{Some preliminary work}
 \label{sec-1}
 \begin{frame}[fragile,shrink = 10]
-\frametitle{Loading packages and creating the data}
+\frametitle{Loading packages and creating the dataset}
 \label{sec-1_1}
 
 \lstset{language=R}
@@ -118,15 +118,27 @@ lm(y ~ x1 + x2 + x1*x2, data = df)
 
 
 
-\begin{verbatim}
-  
- Call:
- lm(formula = y ~ x1 + x2 + x1 * x2, data = df)
+
+\begin{lstlisting}
+Loading required package: reshape
+Loading required package: plyr
+
+Attaching package: 'reshape'
+
+The following object(s) are masked from 'package:plyr':
+
+    round_any
+
+Loading required package: grid
+Loading required package: proto
  
- Coefficients:
- (Intercept)           x1           x2        x1:x2  
-      1.3046       0.2554       0.3738       0.9140
-\end{verbatim}
+Call:
+lm(formula = y ~ x1 + x2 + x1 * x2, data = df)
+
+Coefficients:
+(Intercept)           x1           x2        x1:x2  
+     1.3046       0.2554       0.3738       0.9140
+\end{lstlisting}
 \end{frame}
 \section{The lattice package}
 \label{sec-2}
@@ -138,9 +150,9 @@ lm(y ~ x1 + x2 + x1*x2, data = df)
 \begin{itemize}
 \item Needs to be loaded via \texttt{library(lattice)}
 \item Most lattice function use the formula interface (e.g., \texttt{y \textasciitilde{} x}).
-\item One strength on \texttt{lattice} is the ability to create multipanel plots (trellis graphs). Use the
+\item One strength of \texttt{lattice} is the ability to create multipanel plots (trellis graphs). Use the
   ``conditional on'' symbol \texttt{|} to create a multipanel plot (e.g., \texttt{y \textasciitilde{} x | g}).
-\item Sometimes, original data need to be prepared (e.g., for barcharts)
+\item Sometimes the original dataset needs to be preprocessed (e.g., for barcharts)
 \item Web resources:
 
 \begin{itemize}
@@ -361,7 +373,7 @@ barchart(Freq ~ Var1, data = data.frame(table(df$x2f)),
 \item Is based on The Grammar of Graphics by Leland Wilkinson
 \item Sometimes difficult to ``tweak'' plots which do not follow the GoG (and Hadley Wickham's
   implementation of the GoG)
-\item Often, original data need to be modified (e.g., aggregated for barcharts)
+\item Again, sometimes the dataset needs to be preprocessed (e.g., aggregated for barcharts)
 \item Web resources:
 
 \begin{itemize}

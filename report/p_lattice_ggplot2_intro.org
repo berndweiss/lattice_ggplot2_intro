@@ -88,7 +88,7 @@ Org-mode}}.
 
 * Some preliminary work
 
-** Loading packages and creating the data
+** Loading packages and creating the dataset
    :PROPERTIES:
    :BEAMER_env: frame
    :BEAMER_envargs: [shrink = 10]
@@ -129,9 +129,9 @@ lm(y ~ x1 + x2 + x1*x2, data = df)
    :END:
 - Needs to be loaded via =library(lattice)=
 - Most lattice function use the formula interface (e.g., =y ~ x=).
-- One strength on =lattice= is the ability to create multipanel plots (trellis graphs). Use the
+- One strength of =lattice= is the ability to create multipanel plots (trellis graphs). Use the
   "conditional on" symbol =|= to create a multipanel plot (e.g., =y ~ x | g=).
-- Sometimes, original data need to be prepared (e.g., for barcharts)
+- Sometimes the original dataset needs to be preprocessed (e.g., for barcharts)
 - Web resources:
   - [[http://lmdvr.r-forge.r-project.org/figures/figures.html][Website for "Lattice: Multivariate Data Visualization with R - Figures and Code" by Deepayan Sarkar]]
   - [[http://www.cet.sunderland.ac.uk/~cs0her/Statistics/UsingLatticeGraphicsInR.htm][Using Lattice Graphics in R]]
@@ -355,7 +355,7 @@ barchart(Freq ~ Var1, data = data.frame(table(df$x2f)),
 - Is based on The Grammar of Graphics by Leland Wilkinson
 - Sometimes difficult to "tweak" plots which do not follow the GoG (and Hadley Wickham's
   implementation of the GoG)
-- Often, original data need to be modified (e.g., aggregated for barcharts)
+- Again, sometimes the dataset needs to be preprocessed (e.g., aggregated for barcharts)
 - Web resources:
   - [[http://had.co.nz/ggplot2/][Hadley Wickham's website for ggplot2]] (this website is simply awesome; he also has
     written a ggplot2 related book)
