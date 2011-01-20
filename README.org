@@ -1,3 +1,5 @@
+Beyond R's basic graphics system: lattice and ggplot2
+
 * Contents
 - docs :: Some lattice and ggplot2 related documents. These documents cannot be found on my github
           repo but the corresponding links are presented inside the slides. 
